@@ -61,17 +61,17 @@ export function UploadZone({ onFileSelect }: UploadZoneProps) {
             onDrop={handleDrop}
             className={cn(
                 "relative border-2 border-dashed rounded-lg p-8 transition-all",
-                isDragging ? "border-[#0ea5e9] bg-[#0ea5e9]/10" : "border-[#404040]",
+                isDragging ? "border-[#0ea5e9] bg-[#0ea5e9]/10" : "border-black/10 dark:border-white/10",
                 file ? "border-[#10b981]" : "",
             )}
         >
             {!file ? (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
                     <Upload
-                        className={cn("w-12 h-12 mx-auto mb-4 transition-colors", isDragging ? "text-[#0ea5e9]" : "text-[#a3a3a3]")}
+                        className={cn("w-12 h-12 mx-auto mb-4 transition-colors", isDragging ? "text-[#0ea5e9]" : "text-muted-foreground")}
                     />
-                    <p className="text-lg font-semibold mb-2">Upload Student ID Card</p>
-                    <p className="text-sm text-[#a3a3a3] mb-4">Drag and drop or click to browse</p>
+                    <p className="text-lg font-semibold mb-2 text-foreground">Upload Student ID Card</p>
+                    <p className="text-sm text-muted-foreground mb-4">Drag and drop or click to browse</p>
                     <input
                         type="file"
                         accept="image/*"
@@ -89,10 +89,10 @@ export function UploadZone({ onFileSelect }: UploadZoneProps) {
                         <CheckCircle2 className="w-6 h-6 text-[#10b981]" />
                         <div>
                             <p className="font-semibold">{file.name}</p>
-                            <p className="text-sm text-[#a3a3a3]">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                         </div>
                     </div>
-                    <button onClick={removeFile} className="p-2 hover:bg-[#1c1c1c] rounded-lg transition-colors">
+                    <button onClick={removeFile} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </motion.div>

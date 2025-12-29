@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 
 interface StatusBadgeProps {
-    status: "live" | "pending" | "approved" | "rejected" | "closed"
+    status: string
     pulse?: boolean
     className?: string
 }
@@ -43,7 +43,8 @@ export function StatusBadge({ status, pulse = false, className }: StatusBadgePro
         },
     }
 
-    const config = statusConfig[status]
+    const normalizedStatus = (status?.toLowerCase() || "pending") as keyof typeof statusConfig
+    const config = statusConfig[normalizedStatus] || statusConfig.pending
 
     return (
         <motion.div

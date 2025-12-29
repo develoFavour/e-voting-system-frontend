@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
-import { ArrowRight, Vote, Shield, CheckCircle } from "lucide-react"
+import { ArrowRight, Vote, Shield, CheckCircle, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -30,7 +30,7 @@ export function HeroSection() {
                 }} />
             </div>
 
-            <div className="container mx-auto px-4 z-10 pt-20">
+            <div className="container mx-auto px-4 z-10 pt-32">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -108,7 +108,7 @@ export function HeroSection() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="border-2 border-white/30 hover:bg-white/10 text-white px-10 py-7 text-lg font-semibold backdrop-blur-sm magnetic-hover bg-white/5"
+                                className="glass border-2 border-white/30 hover:bg-white/20 text-white px-10 py-7 text-lg font-semibold magnetic-hover"
                             >
                                 Get Accredited
                             </Button>
@@ -123,18 +123,25 @@ export function HeroSection() {
                         className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16"
                     >
                         {[
-                            { icon: Shield, label: "Secure & Encrypted", desc: "Military-grade security" },
-                            { icon: CheckCircle, label: "Identity Verified", desc: "Admin-approved voters only" },
-                            { icon: Vote, label: "Real-time Results", desc: "Live vote counting" },
+                            { icon: Shield, label: "Secure & Encrypted", desc: "Military-grade data protection", color: "from-blue-500/20 to-cyan-500/20" },
+                            { icon: CheckCircle, label: "Identity Verified", desc: "Admin-level identity vetting", color: "from-emerald-500/20 to-teal-500/20" },
+                            { icon: TrendingUp, label: "Real-time Results", desc: "Live instant vote counting", color: "from-sky-500/20 to-blue-500/20" },
                         ].map((item, index) => (
-                            <div
+                            <motion.div
                                 key={item.label}
-                                className="glass-strong p-6 rounded-xl border border-white/10 backdrop-blur-md"
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                className="glass-strong p-8 rounded-2xl border border-white/20 dark:border-white/10 group cursor-default text-left relative overflow-hidden"
                             >
-                                <item.icon className="w-8 h-8 text-[#0ea5e9] mx-auto mb-3" />
-                                <h3 className="font-semibold text-white mb-1">{item.label}</h3>
-                                <p className="text-sm text-white/70">{item.desc}</p>
-                            </div>
+                                <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                                <div className="relative z-10">
+                                    <div className="w-12 h-12 bg-[#0ea5e9]/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#0ea5e9]/30 transition-all">
+                                        <item.icon className="w-6 h-6 text-[#0ea5e9]" />
+                                    </div>
+                                    <h3 className="font-bold text-xl text-white mb-2">{item.label}</h3>
+                                    <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
+                                </div>
+                            </motion.div>
                         ))}
                     </motion.div>
                 </motion.div>

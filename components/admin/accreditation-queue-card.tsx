@@ -4,14 +4,15 @@ import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, ExternalLink } from "lucide-react"
+import { getImageUrl } from "@/lib/api"
 
 interface AccreditationRequest {
     id: string
-    name: string
+    fullName: string
     matricNumber: string
     department: string
     idCardUrl: string
-    submittedAt: string
+    createdAt: string
 }
 
 interface AccreditationQueueCardProps {
@@ -29,7 +30,7 @@ export function AccreditationQueueCard({ request, onApprove, onReject }: Accredi
                     <div>
                         <div className="mb-4">
                             <label className="text-xs text-[#a3a3a3] uppercase tracking-wider">Full Name</label>
-                            <p className="text-lg font-semibold">{request.name}</p>
+                            <p className="text-lg font-semibold">{request.fullName}</p>
                         </div>
 
                         <div className="mb-4">
@@ -44,23 +45,30 @@ export function AccreditationQueueCard({ request, onApprove, onReject }: Accredi
 
                         <div>
                             <label className="text-xs text-[#a3a3a3] uppercase tracking-wider">Submitted</label>
-                            <p className="text-sm">{new Date(request.submittedAt).toLocaleString()}</p>
+                            <p className="text-sm">
+                                {request.createdAt
+                                    ? new Date(request.createdAt).toLocaleString(undefined, {
+                                        dateStyle: 'medium',
+                                        timeStyle: 'short'
+                                    })
+                                    : "Recently"}
+                            </p>
                         </div>
                     </div>
 
                     {/* ID Card Preview */}
                     <div>
                         <label className="text-xs text-[#a3a3a3] uppercase tracking-wider mb-2 block">Student ID Card</label>
-                        <div className="relative aspect-video rounded-lg overflow-hidden bg-[#1c1c1c] mb-4">
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-[#1c1c1c] mb-4 border border-[#404040]">
                             <img
-                                src={request.idCardUrl || "/placeholder.svg"}
+                                src={getImageUrl(request.idCardUrl) || "/placeholder.svg"}
                                 alt="Student ID"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                             />
                         </div>
 
                         <a
-                            href={request.idCardUrl}
+                            href={getImageUrl(request.idCardUrl) || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[#0ea5e9] text-sm flex items-center gap-1 hover:underline"

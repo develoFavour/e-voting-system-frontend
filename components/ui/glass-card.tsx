@@ -9,7 +9,7 @@ export function GlassCard({ className, depth = "medium", children, ...props }: G
     const depthClasses = {
         shallow: "glass shadow-lg",
         medium: "glass-strong shadow-xl",
-        deep: "glass-strong shadow-2xl border border-[#404040]",
+        deep: "glass-strong shadow-2xl border border-black/10 dark:border-white/10",
     }
 
     return (

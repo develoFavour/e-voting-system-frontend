@@ -1,36 +1,19 @@
 "use client"
 
 import { Moon, Sun } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useTheme } from "next-themes"
 
 export function ThemeToggle() {
-    const [theme, setTheme] = useState<"light" | "dark">("light")
-
-    useEffect(() => {
-        // Check localStorage or default to light for formal institutional feel
-        const savedTheme = localStorage.getItem("theme") as "light" | "dark" || "light"
-        setTheme(savedTheme)
-        document.documentElement.classList.toggle("dark", savedTheme === "dark")
-    }, [])
-
-    const toggleTheme = () => {
-        const newTheme = theme === "light" ? "dark" : "light"
-        setTheme(newTheme)
-        localStorage.setItem("theme", newTheme)
-        document.documentElement.classList.toggle("dark", newTheme === "dark")
-    }
+    const { theme, setTheme } = useTheme()
 
     return (
         <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1c1c1c] transition-colors"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors relative"
             aria-label="Toggle theme"
         >
-            {theme === "light" ? (
-                <Moon className="w-5 h-5 text-gray-700" />
-            ) : (
-                <Sun className="w-5 h-5 text-[#fafafa]" />
-            )}
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2 left-2" />
         </button>
     )
 }

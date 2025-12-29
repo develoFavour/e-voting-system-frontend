@@ -1,0 +1,356 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { GlassCard } from "@/components/ui/glass-card";
+import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import {
+	Users,
+	UserCheck,
+	Vote,
+	BarChart3,
+	Play,
+	Pause,
+	StopCircle,
+	TrendingUp,
+} from "lucide-react";
+import { toast } from "sonner";
+import { adminAPI } from "@/lib/api";
+
+export default function AdminOverviewPage() {
+	const [electionStatus, setElectionStatus] = useState<
+		"pending" | "live" | "closed"
+	>("pending");
+	const [statsData, setStatsData] = useState({
+		totalRegistered: 0,
+		approvedVoters: 0,
+		votesCast: 0,
+		pendingRequests: 0,
+	});
+	const [election, setElection] = useState<any>(null);
+	const [showStartElectionModal, setShowStartElectionModal] = useState(false);
+	const [electionForm, setElectionForm] = useState({
+		title: "",
+		description: "",
+		duration: 180, // Default 3 hours in minutes
+	});
+	const [isLoading, setIsLoading] = useState(true);
+
+	const fetchAdminData = async () => {
+		try {
+			const stats = await adminAPI.getDashboardStats();
+
+			setStatsData({
+				totalRegistered: stats.totalRegistered,
+				approvedVoters: stats.approvedVoters,
+				votesCast: stats.votesCast,
+				pendingRequests: stats.pendingRequests,
+			});
+
+			// Set election data and status
+			if (stats.election) {
+				setElection(stats.election);
+				setElectionStatus(stats.election.status);
+			} else {
+				setElection(null);
+				setElectionStatus("pending");
+			}
+		} catch (error) {
+			console.error("Failed to fetch admin data:", error);
+			toast.error("Failed to load dashboard statistics");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchAdminData();
+	}, []);
+
+	const handleElectionControl = async (action: "start" | "pause" | "end") => {
+		try {
+			if (action === "start") {
+				// Show the start election modal instead of directly starting
+				setShowStartElectionModal(true);
+			} else if (action === "pause") {
+				setElectionStatus("pending");
+				toast.info("Election paused");
+			} else {
+				await adminAPI.endElection();
+				setElectionStatus("closed");
+				toast.success("Election ended");
+				// Refresh data
+				fetchAdminData();
+			}
+		} catch (error: any) {
+			toast.error(error.message || "Action failed");
+		}
+	};
+
+	const handleStartElection = async () => {
+		try {
+			await adminAPI.startElection(
+				electionForm.title,
+				electionForm.description,
+				electionForm.duration
+			);
+			setElectionStatus("live");
+			toast.success("Election started successfully!");
+			setShowStartElectionModal(false);
+			// Reset form
+			setElectionForm({
+				title: "",
+				description: "",
+				duration: 180,
+			});
+			// Refresh data
+			fetchAdminData();
+		} catch (error: any) {
+			toast.error(error.message || "Failed to start election");
+		}
+	};
+
+	const stats = [
+		{
+			label: "Total Registered",
+			value: statsData.totalRegistered.toLocaleString(),
+			icon: Users,
+			color: "#0ea5e9",
+			trend: "+12%",
+		},
+		{
+			label: "Approved Voters",
+			value: statsData.approvedVoters.toLocaleString(),
+			icon: UserCheck,
+			color: "#10b981",
+			trend: "+8%",
+		},
+		{
+			label: "Votes Cast",
+			value: statsData.votesCast.toLocaleString(),
+			icon: Vote,
+			color: "#f59e0b",
+			trend: "+24%",
+		},
+		{
+			label: "Pending Requests",
+			value: statsData.pendingRequests.toLocaleString(),
+			icon: BarChart3,
+			color: "#ef4444",
+			trend: "Latest",
+		},
+	];
+
+	return (
+		<div className="space-y-8 animate-in fade-in duration-500">
+			<div>
+				<h1 className="text-3xl font-bold tracking-tight mb-2">
+					Election Overview
+				</h1>
+				<p className="text-[#a3a3a3]">
+					Real-time statistics and controls for the current election cycle.
+				</p>
+			</div>
+
+			{/* Stats Grid */}
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+				{stats.map((stat, index) => (
+					<motion.div
+						key={stat.label}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: index * 0.1 }}
+					>
+						<GlassCard
+							depth="medium"
+							className="p-6 group hover:border-[#0ea5e9]/50 transition-colors"
+						>
+							<div className="flex items-center justify-between mb-4">
+								<div
+									className="w-12 h-12 rounded-xl flex items-center justify-center bg-opacity-10"
+									style={{ backgroundColor: `${stat.color}20` }}
+								>
+									<stat.icon
+										className="w-6 h-6"
+										style={{ color: stat.color }}
+									/>
+								</div>
+								<span className="text-xs font-medium text-[#10b981] flex items-center gap-1">
+									<TrendingUp className="w-3 h-3" />
+									{stat.trend}
+								</span>
+							</div>
+							<p className="text-3xl font-bold mb-1">{stat.value}</p>
+							<p className="text-sm text-[#a3a3a3] font-medium">{stat.label}</p>
+						</GlassCard>
+					</motion.div>
+				))}
+			</div>
+
+			<div className="grid lg:grid-cols-2 gap-8">
+				{/* Election Controls */}
+				<GlassCard depth="deep" className="p-8 relative overflow-hidden">
+					<div className="absolute top-0 right-0 w-32 h-32 bg-[#0ea5e9]/5 rounded-full blur-3xl" />
+					<div className="flex items-center justify-between mb-6">
+						<h3 className="text-xl font-bold">Election Control Center</h3>
+						<StatusBadge
+							status={electionStatus}
+							pulse={electionStatus === "live"}
+						/>
+					</div>
+					<p className="text-[#a3a3a3] mb-8 text-sm">
+						As an administrator, you have the authority to manage the election
+						lifecycle. Please ensure all candidates are verified before
+						starting.
+					</p>
+					<div className="flex flex-col sm:flex-row gap-4">
+						<Button
+							onClick={() => handleElectionControl("start")}
+							disabled={electionStatus === "live"}
+							className="bg-[#10b981] hover:bg-[#10b981]/90 h-14 px-8 text-lg flex-1 font-bold"
+						>
+							<Play className="w-5 h-5 mr-3" />
+							Start Election
+						</Button>
+						<Button
+							onClick={() => handleElectionControl("pause")}
+							disabled={electionStatus !== "live"}
+							variant="outline"
+							className="border-[#f59e0b] text-[#f59e0b] hover:bg-[#f59e0b]/10 h-14 px-8 text-lg flex-1 bg-transparent font-bold"
+						>
+							<Pause className="w-5 h-5 mr-3" />
+							Pause
+						</Button>
+						<Button
+							onClick={() => handleElectionControl("end")}
+							disabled={electionStatus === "closed"}
+							variant="outline"
+							className="border-[#ef4444] text-[#ef4444] hover:bg-[#ef4444]/10 h-14 px-8 text-lg flex-1 bg-transparent font-bold"
+						>
+							<StopCircle className="w-5 h-5 mr-3" />
+							End
+						</Button>
+					</div>
+				</GlassCard>
+
+				{/* Quick Actions / Activity Placeholder */}
+				<GlassCard depth="deep" className="p-8">
+					<h3 className="text-xl font-bold mb-6">Recent Activity</h3>
+					<div className="space-y-6">
+						{[
+							{
+								user: "ADMIN001",
+								action: "Approved 24 voters",
+								time: "2 mins ago",
+							},
+							{
+								user: "ADMIN001",
+								action: "Added new candidate: John Smith",
+								time: "1 hour ago",
+							},
+							{
+								user: "SYSTEM",
+								action: "Election status set to PENDING",
+								time: "3 hours ago",
+							},
+						].map((activity, i) => (
+							<div key={i} className="flex items-center gap-4 text-sm">
+								<div className="w-8 h-8 rounded-full bg-[#404040] flex items-center justify-center text-[10px] font-bold">
+									{activity.user[0]}
+								</div>
+								<div className="flex-1">
+									<p className="font-medium text-white">{activity.action}</p>
+									<p className="text-[#a3a3a3] text-xs">{activity.time}</p>
+								</div>
+							</div>
+						))}
+					</div>
+				</GlassCard>
+			</div>
+
+			{/* Start Election Modal */}
+			<AnimatePresence>
+				{showStartElectionModal && (
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+						onClick={() => setShowStartElectionModal(false)}
+					>
+						<motion.div
+							initial={{ scale: 0.9, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							exit={{ scale: 0.9, opacity: 0 }}
+							onClick={(e) => e.stopPropagation()}
+							className="max-w-2xl w-full"
+						>
+							<GlassCard depth="deep" className="p-8">
+								<h2 className="text-2xl font-bold mb-6">Start New Election</h2>
+								
+								<div className="space-y-4 mb-6">
+									<div>
+										<label className="text-sm font-medium mb-1.5 block">
+											Election Title
+										</label>
+										<input
+											type="text"
+											className="w-full bg-[#0f0f0f] border border-[#404040] rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]"
+											value={electionForm.title}
+											onChange={(e) => setElectionForm({ ...electionForm, title: e.target.value })}
+											placeholder="e.g. Student Union Election 2025"
+										/>
+									</div>
+									
+									<div>
+										<label className="text-sm font-medium mb-1.5 block">
+											Description
+										</label>
+										<textarea
+											className="w-full bg-[#0f0f0f] border border-[#404040] rounded-lg h-20 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#0ea5e9] resize-none"
+											value={electionForm.description}
+											onChange={(e) => setElectionForm({ ...electionForm, description: e.target.value })}
+											placeholder="Brief description of the election..."
+										/>
+									</div>
+									
+									<div>
+										<label className="text-sm font-medium mb-1.5 block">
+											Duration (minutes)
+										</label>
+										<input
+											type="number"
+											className="w-full bg-[#0f0f0f] border border-[#404040] rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#0ea5e9]"
+											value={electionForm.duration}
+											onChange={(e) => setElectionForm({ ...electionForm, duration: parseInt(e.target.value) || 0 })}
+											placeholder="180"
+											min="1"
+										/>
+									</div>
+								</div>
+
+								<div className="flex gap-3">
+									<Button
+										onClick={() => setShowStartElectionModal(false)}
+										variant="outline"
+										className="flex-1 border-[#404040] hover:bg-[#1c1c1c] bg-transparent"
+									>
+										Cancel
+									</Button>
+									<Button
+										onClick={handleStartElection}
+										disabled={!electionForm.title || electionForm.duration <= 0}
+										className="flex-1 bg-[#10b981] hover:bg-[#10b981]/90 magnetic-hover disabled:opacity-50"
+									>
+										Start Election
+									</Button>
+								</div>
+							</GlassCard>
+						</motion.div>
+					</motion.div>
+				</AnimatePresence>
+			</div>
+		
+	);
+}
