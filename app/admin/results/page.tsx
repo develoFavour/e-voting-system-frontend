@@ -188,11 +188,10 @@ export default function AdminResultsPage() {
 			// Election Summary Header
 			csvContent += "ELECTION RESULTS REPORT\n";
 			csvContent += `Generated: ${new Date().toLocaleString()}\n`;
-			csvContent += `Export Type: ${
-				activeTab === "current"
-					? "Current Election"
-					: selectedElection?.title || "Election Details"
-			}\n`;
+			csvContent += `Export Type: ${activeTab === "current"
+				? "Current Election"
+				: selectedElection?.title || "Election Details"
+				}\n`;
 			csvContent += "\n";
 
 			// Summary Statistics
@@ -204,9 +203,9 @@ export default function AdminResultsPage() {
 					"Voter Turnout," +
 					(currentResults.approvedVoters > 0
 						? Math.round(
-								(currentResults.totalVotes / currentResults.approvedVoters) *
-									100
-						  )
+							(currentResults.totalVotes / currentResults.approvedVoters) *
+							100
+						)
 						: 0) +
 					"%\n";
 				csvContent +=
@@ -227,10 +226,10 @@ export default function AdminResultsPage() {
 					"Voter Turnout," +
 					(selectedElection.approvedVoters > 0
 						? Math.round(
-								(selectedElection.totalVotes /
-									selectedElection.approvedVoters) *
-									100
-						  )
+							(selectedElection.totalVotes /
+								selectedElection.approvedVoters) *
+							100
+						)
 						: 0) +
 					"%\n";
 				csvContent += "\n";
@@ -272,7 +271,7 @@ export default function AdminResultsPage() {
 			} else if (activeTab === "details" && selectedElectionDetails) {
 				// Selected election details data
 				Object.entries(
-					selectedElectionDetails.candidates.reduce((acc, candidate) => {
+					selectedElectionDetails.candidates.reduce((acc: Record<string, any[]>, candidate) => {
 						if (!acc[candidate.position]) acc[candidate.position] = [];
 						acc[candidate.position].push(candidate);
 						return acc;
@@ -283,8 +282,8 @@ export default function AdminResultsPage() {
 						0
 					);
 					candidates
-						.sort((a, b) => b.voteCount - a.voteCount)
-						.forEach((candidate, idx) => {
+						.sort((a, b: any) => b.voteCount - a.voteCount)
+						.forEach((candidate: any, idx: number) => {
 							const percentage =
 								totalVotes > 0
 									? Math.round((candidate.voteCount / totalVotes) * 100)
@@ -508,11 +507,10 @@ export default function AdminResultsPage() {
 						<h1>ELECTION RESULTS REPORT</h1>
 						<div class="subtitle">
 							Generated: ${new Date().toLocaleString()} | 
-							Export Type: ${
-								activeTab === "current"
-									? "Current Election"
-									: selectedElection?.title || "Election Details"
-							}
+							Export Type: ${activeTab === "current"
+					? "Current Election"
+					: selectedElection?.title || "Election Details"
+				}
 						</div>
 					</div>
 
@@ -534,15 +532,14 @@ export default function AdminResultsPage() {
 					</div>
 					<div class="summary-item">
 						<div class="label">Voter Turnout</div>
-						<div class="value">${
-							currentResults.approvedVoters > 0
-								? Math.round(
-										(currentResults.totalVotes /
-											currentResults.approvedVoters) *
-											100
-								  )
-								: 0
-						}%</div>
+						<div class="value">${currentResults.approvedVoters > 0
+						? Math.round(
+							(currentResults.totalVotes /
+								currentResults.approvedVoters) *
+							100
+						)
+						: 0
+					}%</div>
 					</div>
 					<div class="summary-item">
 						<div class="label">Active Positions</div>
@@ -557,15 +554,14 @@ export default function AdminResultsPage() {
 					</div>
 					<div class="summary-item">
 						<div class="label">Status</div>
-						<div class="value" style="text-transform: capitalize;">${
-							selectedElection.status
-						}</div>
+						<div class="value" style="text-transform: capitalize;">${selectedElection.status
+					}</div>
 					</div>
 					<div class="summary-item">
 						<div class="label">Election Date</div>
 						<div class="value" style="font-size: 16px;">${new Date(
-							selectedElection.startTime
-						).toLocaleDateString()}</div>
+						selectedElection.startTime
+					).toLocaleDateString()}</div>
 					</div>
 					<div class="summary-item">
 						<div class="label">Total Votes</div>
@@ -573,15 +569,14 @@ export default function AdminResultsPage() {
 					</div>
 					<div class="summary-item">
 						<div class="label">Voter Turnout</div>
-						<div class="value">${
-							selectedElection.approvedVoters > 0
-								? Math.round(
-										(selectedElection.totalVotes /
-											selectedElection.approvedVoters) *
-											100
-								  )
-								: 0
-						}%</div>
+						<div class="value">${selectedElection.approvedVoters > 0
+						? Math.round(
+							(selectedElection.totalVotes /
+								selectedElection.approvedVoters) *
+							100
+						)
+						: 0
+					}%</div>
 					</div>
 				`;
 			}
@@ -651,14 +646,14 @@ export default function AdminResultsPage() {
 				});
 			} else if (activeTab === "details" && selectedElectionDetails) {
 				Object.entries(
-					selectedElectionDetails.candidates.reduce((acc, candidate) => {
+					selectedElectionDetails.candidates.reduce((acc: Record<string, any[]>, candidate) => {
 						if (!acc[candidate.position]) acc[candidate.position] = [];
 						acc[candidate.position].push(candidate);
 						return acc;
 					}, {})
 				).forEach(([position, candidates]) => {
 					const totalVotes = candidates.reduce(
-						(sum, c) => sum + c.voteCount,
+						(sum: number, c: any) => sum + c.voteCount,
 						0
 					);
 					candidates.sort((a, b) => b.voteCount - a.voteCount);
@@ -716,9 +711,8 @@ export default function AdminResultsPage() {
 			htmlContent += `
 					<div class="footer">
 						<p><strong>E-Voting System v1.0</strong> | Official Election Results Report</p>
-						<p>Export Date: ${
-							new Date().toISOString().split("T")[0]
-						} | This document is electronically generated</p>
+						<p>Export Date: ${new Date().toISOString().split("T")[0]
+				} | This document is electronically generated</p>
 					</div>
 
 					<script>
@@ -740,11 +734,11 @@ export default function AdminResultsPage() {
 			toast.success(
 				"Professional PDF report generated! Check your print dialog."
 			);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Error exporting PDF:", error);
 			toast.error(
 				error.message ||
-					"Failed to export PDF. Please allow popups and try again."
+				"Failed to export PDF. Please allow popups and try again."
 			);
 		}
 	};
@@ -878,12 +872,12 @@ export default function AdminResultsPage() {
 								</span>
 							</div>
 							<p className="text-3xl font-bold">
-								{currentResults?.approvedVoters > 0
+								{currentResults && currentResults.approvedVoters > 0
 									? Math.round(
-											(currentResults.totalVotes /
-												currentResults.approvedVoters) *
-												100
-									  )
+										(currentResults.totalVotes /
+											currentResults.approvedVoters) *
+										100
+									)
 									: 0}
 								%
 							</p>
@@ -943,8 +937,8 @@ export default function AdminResultsPage() {
 														const percentage =
 															totalPosVotes > 0
 																? Math.round(
-																		(candidate.voteCount / totalPosVotes) * 100
-																  )
+																	(candidate.voteCount / totalPosVotes) * 100
+																)
 																: 0;
 
 														return (
@@ -958,11 +952,10 @@ export default function AdminResultsPage() {
 																<div className="flex items-center justify-between mb-2">
 																	<div className="flex items-center gap-3">
 																		<span
-																			className={`font-medium ${
-																				idx === 0
-																					? "text-white"
-																					: "text-[#a3a3a3]"
-																			}`}
+																			className={`font-medium ${idx === 0
+																				? "text-white"
+																				: "text-[#a3a3a3]"
+																				}`}
 																		>
 																			{candidate.name}
 																		</span>
@@ -987,11 +980,10 @@ export default function AdminResultsPage() {
 																			duration: 1,
 																			ease: "easeOut",
 																		}}
-																		className={`h-full rounded-full ${
-																			idx === 0
-																				? "bg-linear-to-r from-yellow-400 to-yellow-600"
-																				: "bg-[#0ea5e9]"
-																		}`}
+																		className={`h-full rounded-full ${idx === 0
+																			? "bg-linear-to-r from-yellow-400 to-yellow-600"
+																			: "bg-[#0ea5e9]"
+																			}`}
 																	/>
 																</div>
 															</div>
@@ -1041,13 +1033,12 @@ export default function AdminResultsPage() {
 											<div className="flex items-center gap-3 mb-2">
 												<h3 className="text-lg font-bold">{election.title}</h3>
 												<span
-													className={`px-2 py-1 rounded-full text-xs font-medium ${
-														election.status === "closed"
-															? "bg-[#10b981]/20 text-[#10b981]"
-															: election.status === "live"
+													className={`px-2 py-1 rounded-full text-xs font-medium ${election.status === "closed"
+														? "bg-[#10b981]/20 text-[#10b981]"
+														: election.status === "live"
 															? "bg-[#0ea5e9]/20 text-[#0ea5e9]"
 															: "bg-[#f59e0b]/20 text-[#f59e0b]"
-													}`}
+														}`}
 												>
 													{election.status}
 												</span>
@@ -1073,10 +1064,10 @@ export default function AdminResultsPage() {
 													<p className="font-medium">
 														{election.approvedVoters > 0
 															? Math.round(
-																	(election.totalVotes /
-																		election.approvedVoters) *
-																		100
-															  )
+																(election.totalVotes /
+																	election.approvedVoters) *
+																100
+															)
 															: 0}
 														%
 													</p>
@@ -1140,10 +1131,10 @@ export default function AdminResultsPage() {
 												<p className="font-medium">
 													{selectedElection.approvedVoters > 0
 														? Math.round(
-																(selectedElection.totalVotes /
-																	selectedElection.approvedVoters) *
-																	100
-														  )
+															(selectedElection.totalVotes /
+																selectedElection.approvedVoters) *
+															100
+														)
 														: 0}
 													%
 												</p>
@@ -1221,8 +1212,8 @@ export default function AdminResultsPage() {
 																const percentage =
 																	totalVotes > 0
 																		? Math.round(
-																				(candidate.voteCount / totalVotes) * 100
-																		  )
+																			(candidate.voteCount / totalVotes) * 100
+																		)
 																		: 0;
 
 																return (
@@ -1236,11 +1227,10 @@ export default function AdminResultsPage() {
 																		<div className="flex items-center justify-between mb-2">
 																			<div className="flex items-center gap-3">
 																				<span
-																					className={`font-medium ${
-																						idx === 0
-																							? "text-white"
-																							: "text-[#a3a3a3]"
-																					}`}
+																					className={`font-medium ${idx === 0
+																						? "text-white"
+																						: "text-[#a3a3a3]"
+																						}`}
 																				>
 																					{candidate.name}
 																				</span>
@@ -1265,11 +1255,10 @@ export default function AdminResultsPage() {
 																					duration: 1,
 																					ease: "easeOut",
 																				}}
-																				className={`h-full rounded-full ${
-																					idx === 0
-																						? "bg-linear-to-r from-yellow-400 to-yellow-600"
-																						: "bg-[#0ea5e9]"
-																				}`}
+																				className={`h-full rounded-full ${idx === 0
+																					? "bg-linear-to-r from-yellow-400 to-yellow-600"
+																					: "bg-[#0ea5e9]"
+																					}`}
 																			/>
 																		</div>
 																	</div>
