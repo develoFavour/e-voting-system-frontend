@@ -285,7 +285,7 @@ export default function AdminOverviewPage() {
 				{/* Quick Actions / Activity Placeholder */}
 				<GlassCard depth="deep" className="p-8">
 					<h3 className="text-xl font-bold mb-6">Recent Activity</h3>
-					<div className="space-y-6">
+					<div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
 						{activities.length > 0 ? (
 							activities.map((activity, i) => (
 								<div key={activity.id || i} className="flex items-center gap-4 text-sm">
