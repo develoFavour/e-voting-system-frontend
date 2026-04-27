@@ -9,7 +9,6 @@ import {
 	LayoutDashboard,
 	ListOrdered,
 	LogOut,
-	ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,8 +21,6 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-	SidebarProvider,
-	SidebarTrigger,
 	SidebarGroup,
 	SidebarGroupLabel,
 	SidebarGroupContent,
@@ -46,6 +43,11 @@ const items = [
 		title: "Accreditation",
 		url: "/admin/accreditation",
 		icon: UserCheck,
+	},
+	{
+		title: "Users",
+		url: "/admin/users",
+		icon: Users,
 	},
 	{
 		title: "Candidates",

@@ -14,6 +14,7 @@ export default function AccreditPage() {
     const [formData, setFormData] = useState({
         matricNumber: "",
         fullName: "",
+        email: "",
         department: "",
         faculty: "",
         password: "",
@@ -22,16 +23,42 @@ export default function AccreditPage() {
     const [idCard, setIdCard] = useState<File | null>(null)
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const getErrorMessage = (error: unknown) =>
+        error instanceof Error ? error.message : "Failed to submit request"
+    const trimmedFormData = {
+        matricNumber: formData.matricNumber.trim(),
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        department: formData.department.trim(),
+        faculty: formData.faculty.trim(),
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+    }
+    const isFormComplete =
+        trimmedFormData.matricNumber !== "" &&
+        trimmedFormData.fullName !== "" &&
+        trimmedFormData.email !== "" &&
+        trimmedFormData.department !== "" &&
+        trimmedFormData.faculty !== "" &&
+        trimmedFormData.password !== "" &&
+        trimmedFormData.confirmPassword !== "" &&
+        !!idCard
+    const passwordsMatch = trimmedFormData.password === trimmedFormData.confirmPassword
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!isFormComplete) {
+            toast.error("Please complete the entire form and upload your Student ID Card")
+            return
+        }
 
         if (!idCard) {
             toast.error("Please upload your Student ID Card")
             return
         }
 
-        if (formData.password !== formData.confirmPassword) {
+        if (!passwordsMatch) {
             toast.error("Passwords do not match")
             return
         }
@@ -40,19 +67,20 @@ export default function AccreditPage() {
 
         try {
             const data = new FormData()
-            data.append("matricNumber", formData.matricNumber)
-            data.append("fullName", formData.fullName)
-            data.append("department", formData.department)
-            data.append("faculty", formData.faculty)
-            data.append("password", formData.password)
+            data.append("matricNumber", trimmedFormData.matricNumber)
+            data.append("fullName", trimmedFormData.fullName)
+            data.append("email", trimmedFormData.email)
+            data.append("department", trimmedFormData.department)
+            data.append("faculty", trimmedFormData.faculty)
+            data.append("password", trimmedFormData.password)
             data.append("idCard", idCard)
 
             await authAPI.register(data)
 
             setIsSubmitted(true)
             toast.success("Accreditation request submitted successfully!")
-        } catch (error: any) {
-            toast.error(error.message || "Failed to submit request")
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error))
         } finally {
             setIsLoading(false)
         }
@@ -145,6 +173,18 @@ export default function AccreditPage() {
                                     </div>
 
                                     <div>
+                                        <label className="block text-sm font-medium mb-2 text-foreground/80">Email Address</label>
+                                        <input
+                                            type="email"
+                                            required
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            className="w-full px-4 py-3 bg-white/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg focus:border-[#0ea5e9] focus:outline-none transition-colors"
+                                            placeholder="you@student.edu"
+                                        />
+                                    </div>
+
+                                    <div>
                                         <label className="block text-sm font-medium mb-2 text-foreground/80">Faculty</label>
                                         <select
                                             required
@@ -212,7 +252,7 @@ export default function AccreditPage() {
                             {/* Submit */}
                             <Button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isLoading || !isFormComplete || !passwordsMatch}
                                 className="w-full bg-[#0ea5e9] hover:bg-[#0ea5e9]/90 py-6 text-lg magnetic-hover disabled:opacity-50"
                             >
                                 {isLoading ? "Submitting..." : "Submit Accreditation Request"}

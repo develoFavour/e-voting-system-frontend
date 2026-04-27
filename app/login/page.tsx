@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { GlassCard } from "@/components/ui/glass-card"
-import { Button } from "@/components/ui/button"
-import { StatusBadge } from "@/components/ui/status-badge"
-import { ArrowLeft, Vote, Lock, User } from "lucide-react"
+import { ArrowLeft, Lock, User } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+
+import { GlassCard } from "@/components/ui/glass-card"
+import { Button } from "@/components/ui/button"
 import { authAPI } from "@/lib/api"
 
 export default function LoginPage() {
@@ -19,6 +19,9 @@ export default function LoginPage() {
     })
     const [isLoading, setIsLoading] = useState(false)
 
+    const getErrorMessage = (error: unknown) =>
+        error instanceof Error ? error.message : "Invalid credentials"
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
@@ -27,14 +30,13 @@ export default function LoginPage() {
             const response = await authAPI.login(formData.matricNumber, formData.password)
             toast.success("Login successful!")
 
-            // Redirect based on role
-            if (response.user.role === 'ADMIN') {
+            if (response.user.role === "ADMIN") {
                 router.push("/admin")
             } else {
                 router.push("/dashboard")
             }
-        } catch (error: any) {
-            toast.error(error.message || "Invalid credentials")
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error))
         } finally {
             setIsLoading(false)
         }
@@ -44,22 +46,16 @@ export default function LoginPage() {
         <main className="min-h-screen mesh-background flex items-center justify-center p-4">
             <div className="container mx-auto max-w-md z-10">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    {/* Logo/Header */}
                     <div className="text-center mb-8">
                         <Link href="/" className="inline-flex items-center text-[#0ea5e9] hover:underline mb-6">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Home
                         </Link>
 
-
-
                         <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome Back</h1>
                         <p className="text-muted-foreground">Sign in to access your voter dashboard</p>
-
-
                     </div>
 
-                    {/* Login Form */}
                     <GlassCard depth="deep" className="p-8">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
@@ -90,6 +86,11 @@ export default function LoginPage() {
                                         placeholder="Enter your password"
                                     />
                                 </div>
+                                <div className="mt-3 text-right">
+                                    <Link href="/forgot-password" className="text-sm font-medium text-[#0ea5e9] hover:underline">
+                                        Forgot Password?
+                                    </Link>
+                                </div>
                             </div>
 
                             <Button
@@ -103,17 +104,16 @@ export default function LoginPage() {
 
                         <div className="mt-6 pt-6 border-t border-black/10 dark:border-white/10">
                             <p className="text-center text-sm text-muted-foreground">
-                                Don't have an account?{" "}
+                                Don&apos;t have an account?{" "}
                                 <Link href="/accredit" className="text-[#0ea5e9] hover:underline font-medium">
                                     Register to get accredited
                                 </Link>
                             </p>
                         </div>
 
-                        {/* Warning for pending users */}
                         <div className="mt-4 p-4 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-lg">
                             <p className="text-sm text-[#f59e0b] text-center">
-                                ⚠️ If your accreditation is still pending, you won't be able to access the voting booth
+                                If your accreditation is still pending, you won&apos;t be able to access the voting booth.
                             </p>
                         </div>
                     </GlassCard>

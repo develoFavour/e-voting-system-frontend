@@ -58,6 +58,20 @@ export const authAPI = {
 		});
 	},
 
+	forgotPassword: async (matricNumber: string) => {
+		return fetchWithAuth("/auth/forgot-password", {
+			method: "POST",
+			body: JSON.stringify({ matricNumber }),
+		});
+	},
+
+	resetPassword: async (token: string, newPassword: string) => {
+		return fetchWithAuth("/auth/reset-password", {
+			method: "POST",
+			body: JSON.stringify({ token, newPassword }),
+		});
+	},
+
 	// Student login
 	login: async (matricNumber: string, password: string) => {
 		const response = await fetchWithAuth("/auth/login", {
@@ -111,7 +125,14 @@ export const authAPI = {
 	getCurrentUser: () => {
 		if (typeof window !== "undefined") {
 			const user = localStorage.getItem("user");
-			return user ? JSON.parse(user) : null;
+			if (!user) return null;
+
+			try {
+				return JSON.parse(user);
+			} catch {
+				localStorage.removeItem("user");
+				return null;
+			}
 		}
 		return null;
 	},
@@ -159,6 +180,10 @@ export const adminAPI = {
 		return fetchWithAuth("/admin/accreditation/pending");
 	},
 
+	getManagedUsers: async () => {
+		return fetchWithAuth("/admin/users");
+	},
+
 	// Approve voter
 	approveVoter: async (userId: string) => {
 		return fetchWithAuth(`/admin/accreditation/${userId}/approve`, {
@@ -167,9 +192,16 @@ export const adminAPI = {
 	},
 
 	// Reject voter
-	rejectVoter: async (userId: string) => {
+	rejectVoter: async (userId: string, reason: string) => {
 		return fetchWithAuth(`/admin/accreditation/${userId}/reject`, {
 			method: "PUT",
+			body: JSON.stringify({ reason }),
+		});
+	},
+
+	removeUser: async (userId: string) => {
+		return fetchWithAuth(`/admin/users/${userId}`, {
+			method: "DELETE",
 		});
 	},
 

@@ -2,17 +2,28 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { UserCheck, Loader2, Search, Filter } from "lucide-react";
+import { UserCheck, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { adminAPI } from "@/lib/api";
 import { AccreditationQueueCard } from "@/components/admin/accreditation-queue-card";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Input } from "@/components/ui/input";
 
+interface PendingAccreditationRequest {
+	id: string;
+	fullName: string;
+	matricNumber: string;
+	department: string;
+	idCardUrl: string;
+	createdAt: string;
+}
+
 export default function AccreditationPage() {
-	const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+	const [pendingRequests, setPendingRequests] = useState<PendingAccreditationRequest[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
+	const getErrorMessage = (error: unknown, fallback: string) =>
+		error instanceof Error ? error.message : fallback;
 
 	const fetchRequests = async () => {
 		try {
@@ -35,18 +46,18 @@ export default function AccreditationPage() {
 			await adminAPI.approveVoter(id);
 			toast.success("Voter approved successfully");
 			setPendingRequests((prev) => prev.filter((req) => req.id !== id));
-		} catch (error: any) {
-			toast.error(error.message || "Failed to approve voter");
+		} catch (error: unknown) {
+			toast.error(getErrorMessage(error, "Failed to approve voter"));
 		}
 	};
 
-	const handleReject = async (id: string) => {
+	const handleReject = async (id: string, reason: string) => {
 		try {
-			await adminAPI.rejectVoter(id);
-			toast.error("Voter rejected");
+			await adminAPI.rejectVoter(id, reason);
+			toast.error("Voter rejected and student notified");
 			setPendingRequests((prev) => prev.filter((req) => req.id !== id));
-		} catch (error: any) {
-			toast.error(error.message || "Failed to reject voter");
+		} catch (error: unknown) {
+			toast.error(getErrorMessage(error, "Failed to reject voter"));
 		}
 	};
 
